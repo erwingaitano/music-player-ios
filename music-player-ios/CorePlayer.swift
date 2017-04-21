@@ -29,16 +29,10 @@ class CorePlayer: UIView {
 
         let avPlayerLayer = AVPlayerLayer(player: player)
         viewEl.layer.addSublayer(avPlayerLayer)
-        
-        initViews()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func initViews() {
-        viewEl.backgroundColor = .yellow
     }
     
     // MARK: - Private Methods

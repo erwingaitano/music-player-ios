@@ -92,6 +92,7 @@ class PlayerController: UIViewController {
         let v = UIView()
         let sv = Slider()
         sv.maximumValue = 1
+        sv.value = self.corePlayerEl.getSystemVolume()
         sv.addTarget(self, action: #selector(self.handleVolumeChange), for: .valueChanged)
         
         let muteIconEl = UIImageView()
@@ -120,6 +121,20 @@ class PlayerController: UIViewController {
         sv.rightAnchorToEqual(fullsoundIconEl.leftAnchor, constant: -5)
         
         return (v, sv)
+    }()
+    
+    private var labelStart: UILabel = {
+        let v = PlayerController.getTimeLabelEl()
+        v.text = "0:00"
+        v.textAlignment = .left
+        return v
+    }()
+    
+    private var labelEnd: UILabel = {
+        let v = PlayerController.getTimeLabelEl()
+        v.text = "0:00"
+        v.textAlignment = .right
+        return v
     }()
     
     // MARK: - Inits
@@ -162,16 +177,10 @@ class PlayerController: UIViewController {
         sliderProgressEl.leftAnchorToEqual(coverEl.leftAnchor, constant: -23)
         sliderProgressEl.rightAnchorToEqual(coverEl.rightAnchor, constant: 23)
         
-        let labelStart = PlayerController.getTimeLabelEl()
-        labelStart.text = "0:00"
-        labelStart.textAlignment = .left
         view.addSubview(labelStart)
         labelStart.topAnchorToEqual(sliderProgressEl.bottomAnchor, constant: 1)
         labelStart.leftAnchorToEqual(sliderProgressEl.leftAnchor)
         
-        let labelEnd = PlayerController.getTimeLabelEl()
-        labelEnd.text = "4:43"
-        labelEnd.textAlignment = .right
         view.addSubview(labelEnd)
         labelEnd.topAnchorToEqual(sliderProgressEl.bottomAnchor, constant: 1)
         labelEnd.rightAnchorToEqual(sliderProgressEl.rightAnchor)
@@ -205,8 +214,13 @@ class PlayerController: UIViewController {
     }
     
     private func handleProgress(currentTime: Double, duration: Double) {
-        if !duration.isNaN { sliderProgressEl.maximumValue = Float(duration) }
+        if !duration.isNaN {
+            sliderProgressEl.maximumValue = Float(duration)
+            labelEnd.text = Int(duration).getMinuteSecondFormattedString()
+        }
+        
         sliderProgressEl.setValue(Float(currentTime), animated: true)
+        labelStart.text = Int(currentTime).getMinuteSecondFormattedString()
     }
     
     @objc private func handlePlayBtn() {

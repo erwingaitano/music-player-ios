@@ -86,4 +86,8 @@ class CorePlayer: UIView {
         player.replaceCurrentItem(with: playerItem)
         setTime(time: 0)
     }
+    
+    public func getSystemVolume() -> Float {
+        return AVAudioSession.sharedInstance().outputVolume
+    }
 }

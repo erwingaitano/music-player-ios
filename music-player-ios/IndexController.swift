@@ -11,7 +11,8 @@ import UIKit
 class IndexController: UIViewController {
     // MARK: - Properties
 
-    private var songIds = [57, 58]
+    private var songIdsToPlay: [String] = []
+    private var currentIdxToPlay: Int = 0
     private let playEl = UIButton()
     private lazy var controlsEl: CorePlayer = {
         let v = CorePlayer(onProgress: self.handleProgress)
@@ -34,8 +35,16 @@ class IndexController: UIViewController {
         view.backgroundColor = .white
         
         initViews()
-        
-        controlsEl.updateSong(id: "57")
+        _ = ApiEndpoints.getSongs().promise.then { json -> Void in
+            guard let songs = json as? [Any] else { return }
+            self.songIdsToPlay = songs.map({ song -> String in
+//                let name = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "name") as! String
+                let id = GeneralHelpers.getStringFromJsonDotNotation(json: song, dotNotation: "id")
+                return id
+            })
+         
+            self.controlsEl.updateSong(id: self.songIdsToPlay[0])
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -115,10 +124,14 @@ class IndexController: UIViewController {
     }
     
     @objc private func prevSong() {
-        controlsEl.updateSong(id: "57")
+        if currentIdxToPlay == 0 { return }
+        currentIdxToPlay -= 1
+        controlsEl.updateSong(id: songIdsToPlay[currentIdxToPlay])
     }
     
     @objc private func nextSong() {
-        controlsEl.updateSong(id: "58")
+        if currentIdxToPlay == songIdsToPlay.count - 1 { return }
+        currentIdxToPlay += 1
+        controlsEl.updateSong(id: songIdsToPlay[currentIdxToPlay])
     }
 }

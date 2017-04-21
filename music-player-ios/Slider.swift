@@ -15,8 +15,7 @@ class Slider: UISlider {
         super.init(frame: .zero)
         setThumbImage(#imageLiteral(resourceName: "icon - slidercircle"), for: .normal)
         minimumTrackTintColor = .secondaryUIColor
-    }
-    
+    }    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

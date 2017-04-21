@@ -88,6 +88,40 @@ class PlayerController: UIViewController {
         return v
     }()
     
+    private lazy var volumeSliderEl: (view: UIView, slider: Slider) = {
+        let v = UIView()
+        let sv = Slider()
+        sv.maximumValue = 1
+        sv.addTarget(self, action: #selector(self.handleVolumeChange), for: .valueChanged)
+        
+        let muteIconEl = UIImageView()
+        muteIconEl.image = #imageLiteral(resourceName: "icon - nosound")
+        muteIconEl.contentMode = .scaleAspectFit
+        muteIconEl.widthAnchorToEqual(width: 9)
+        muteIconEl.heightAnchorToEqual(height: 14)
+        
+        v.addSubview(muteIconEl)
+        muteIconEl.centerYAnchorToEqual(v.centerYAnchor)
+        muteIconEl.leftAnchorToEqual(v.leftAnchor)
+        
+        let fullsoundIconEl = UIImageView()
+        fullsoundIconEl.image = #imageLiteral(resourceName: "icon - sound")
+        fullsoundIconEl.contentMode = .scaleAspectFit
+        fullsoundIconEl.widthAnchorToEqual(width: 21)
+        fullsoundIconEl.heightAnchorToEqual(height: 17)
+        
+        v.addSubview(fullsoundIconEl)
+        fullsoundIconEl.centerYAnchorToEqual(v.centerYAnchor)
+        fullsoundIconEl.rightAnchorToEqual(v.rightAnchor)
+        
+        v.addSubview(sv)
+        sv.centerYAnchorToEqual(v.centerYAnchor)
+        sv.leftAnchorToEqual(muteIconEl.rightAnchor, constant: 5)
+        sv.rightAnchorToEqual(fullsoundIconEl.leftAnchor, constant: -5)
+        
+        return (v, sv)
+    }()
+    
     // MARK: - Inits
     
     init() {
@@ -152,6 +186,12 @@ class PlayerController: UIViewController {
         playControlsEl.topAnchorToEqual(songInfoEl.bottomAnchor, constant: 16)
         playControlsEl.leftAnchorToEqual(coverEl.leftAnchor)
         playControlsEl.rightAnchorToEqual(coverEl.rightAnchor)
+        
+        view.addSubview(volumeSliderEl.view)
+        volumeSliderEl.view.heightAnchorToEqual(height: 21)
+        volumeSliderEl.view.topAnchorToEqual(playControlsEl.bottomAnchor, constant: 26)
+        volumeSliderEl.view.leftAnchorToEqual(coverEl.leftAnchor, constant: -17)
+        volumeSliderEl.view.rightAnchorToEqual(coverEl.rightAnchor, constant: 28)
     }
     
     // MARK: - Private Methods
@@ -197,6 +237,10 @@ class PlayerController: UIViewController {
         if currentIdxToPlay == songIdsToPlay.count - 1 { return }
         currentIdxToPlay += 1
         corePlayerEl.updateSong(id: songIdsToPlay[currentIdxToPlay])
+    }
+    
+    @objc private func handleVolumeChange() {
+        corePlayerEl.player.volume = volumeSliderEl.slider.value
     }
     
     // MARK: - API Methods

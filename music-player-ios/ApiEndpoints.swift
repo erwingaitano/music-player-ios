@@ -50,7 +50,7 @@ class ApiEndpoints {
     // MARK: - API Methods
     
     public static func getSongs() -> (promise: Promise<[SongModel]>, canceler: () -> Void) {
-        let promiseEl = getJson(url: "/")
+        let promiseEl = getJson(url: "/", forcedDelay: 2)
         
         let promise = promiseEl.promise.then { response -> [SongModel] in
             guard let songs = response as? [Any] else { return [] }

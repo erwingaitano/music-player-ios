@@ -19,12 +19,11 @@ class PlayerController: UIViewController {
         let v = UIImageView()
         v.contentMode = .scaleAspectFill
         v.backgroundColor = UIColor.hexStringToUIColor(hex: "#aaaaaa")
-        v.layer.cornerRadius = 10
         v.clipsToBounds = true
         
         self.coverGradientEl = CAGradientLayer()
         self.coverGradientEl.colors = [UIColor.black.withAlphaComponent(0.5).cgColor, UIColor.black.withAlphaComponent(0.75).cgColor]
-        self.coverGradientEl.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+        self.coverGradientEl.frame = CGRect(x: 0, y: 0, width: 400, height: 400)
         v.layer.addSublayer(self.coverGradientEl)
         return v
     }()
@@ -49,7 +48,7 @@ class PlayerController: UIViewController {
         labelSongTitleEl.font = UIFont.systemFont(ofSize: 18, weight: UIFontWeightSemibold)
         labelSongTitleEl.textColor = .white
         labelSongTitleEl.textAlignment = .center
-        labelSongTitleEl.text = "Name of the Song"
+        labelSongTitleEl.text = "-"
         
         v.addSubview(labelSongTitleEl)
         labelSongTitleEl.topAnchorToEqual(v.topAnchor)
@@ -57,86 +56,69 @@ class PlayerController: UIViewController {
         labelSongTitleEl.rightAnchorToEqual(v.rightAnchor)
         
         let labelAlbumEl = UILabel()
-        labelAlbumEl.font = UIFont.systemFont(ofSize: 18, weight: UIFontWeightMedium)
+        labelAlbumEl.font = UIFont.systemFont(ofSize: 14, weight: UIFontWeightMedium)
         labelAlbumEl.textColor = .secondaryUIColor
         labelAlbumEl.textAlignment = .center
-        labelAlbumEl.text = "Author - Album"
+        labelAlbumEl.text = "-"
         
         v.addSubview(labelAlbumEl)
-        labelAlbumEl.topAnchorToEqual(labelSongTitleEl.bottomAnchor, constant: 5)
+        labelAlbumEl.topAnchorToEqual(labelSongTitleEl.bottomAnchor, constant: 2)
         labelAlbumEl.leftAnchorToEqual(v.leftAnchor)
         labelAlbumEl.rightAnchorToEqual(v.rightAnchor)
         return v
     }()
     
-    private lazy var playControlsEl: UIStackView = {
-        let v = UIStackView()
-        v.axis = .horizontal
-        v.distribution = .fillEqually
+    private lazy var playControlsEl: UIView = {
+        let v = UIView()
+        let viewHeight: CGFloat = 80
+        let controlSep: CGFloat = 20
+        let prevNextElWidth: CGFloat = 37
+        let prevNextElHeight: CGFloat = 30
         
         self.playEl.setImage(#imageLiteral(resourceName: "icon - play"), for: .normal)
-        self.playEl.heightAnchorToEqual(height: 60)
         self.playEl.addTarget(self, action: #selector(handlePlayBtn), for: .touchUpInside)
+        
+        v.addSubview(self.playEl)
+        self.playEl.widthAnchorToEqual(width: viewHeight)
+        self.playEl.heightAnchorToEqual(height: viewHeight)
+        self.playEl.centerYAnchorToEqual(v.centerYAnchor)
+        self.playEl.centerXAnchorToEqual(v.centerXAnchor)
         
         let prevEl = UIButton()
         prevEl.setImage(#imageLiteral(resourceName: "icon - fastbackward"), for: .normal)
         prevEl.addTarget(self, action: #selector(prevSong), for: .touchUpInside)
         
+        v.addSubview(prevEl)
+        prevEl.widthAnchorToEqual(width: prevNextElWidth)
+        prevEl.heightAnchorToEqual(height: prevNextElHeight)
+        prevEl.centerYAnchorToEqual(self.playEl.centerYAnchor)
+        prevEl.rightAnchorToEqual(self.playEl.leftAnchor, constant: -controlSep)
+        
         let nextEl = UIButton()
         nextEl.setImage(#imageLiteral(resourceName: "icon - fastforward"), for: .normal)
         nextEl.addTarget(self, action: #selector(nextSong), for: .touchUpInside)
         
-        v.addArrangedSubview(prevEl)
-        v.addArrangedSubview(self.playEl)
-        v.addArrangedSubview(nextEl)
+        v.addSubview(nextEl)
+        nextEl.widthAnchorToEqual(width: prevNextElWidth)
+        nextEl.heightAnchorToEqual(height: prevNextElHeight)
+        nextEl.centerYAnchorToEqual(self.playEl.centerYAnchor)
+        nextEl.leftAnchorToEqual(self.playEl.rightAnchor, constant: controlSep)
+        
+        v.heightAnchorToEqual(height: viewHeight)
+        
         return v
-    }()
-    
-    private lazy var volumeSliderEl: (view: UIView, slider: Slider) = {
-        let v = UIView()
-        let sv = Slider()
-        sv.maximumValue = 1
-        sv.value = self.corePlayerEl.getSystemVolume()
-        sv.addTarget(self, action: #selector(self.handleVolumeChange), for: .valueChanged)
-        
-        let muteIconEl = UIImageView()
-        muteIconEl.image = #imageLiteral(resourceName: "icon - nosound")
-        muteIconEl.contentMode = .scaleAspectFit
-        muteIconEl.widthAnchorToEqual(width: 9)
-        muteIconEl.heightAnchorToEqual(height: 14)
-        
-        v.addSubview(muteIconEl)
-        muteIconEl.centerYAnchorToEqual(v.centerYAnchor)
-        muteIconEl.leftAnchorToEqual(v.leftAnchor)
-        
-        let fullsoundIconEl = UIImageView()
-        fullsoundIconEl.image = #imageLiteral(resourceName: "icon - sound")
-        fullsoundIconEl.contentMode = .scaleAspectFit
-        fullsoundIconEl.widthAnchorToEqual(width: 21)
-        fullsoundIconEl.heightAnchorToEqual(height: 17)
-        
-        v.addSubview(fullsoundIconEl)
-        fullsoundIconEl.centerYAnchorToEqual(v.centerYAnchor)
-        fullsoundIconEl.rightAnchorToEqual(v.rightAnchor)
-        
-        v.addSubview(sv)
-        sv.centerYAnchorToEqual(v.centerYAnchor)
-        sv.leftAnchorToEqual(muteIconEl.rightAnchor, constant: 5)
-        sv.rightAnchorToEqual(fullsoundIconEl.leftAnchor, constant: -5)
-        
-        return (v, sv)
     }()
     
     private var labelStart: UILabel = {
         let v = PlayerController.getTimeLabelEl()
-        v.text = "0:00"
+        v.text = "-:--"
         v.textAlignment = .left
         return v
     }()
     
     private var labelEnd: UILabel = {
         let v = PlayerController.getTimeLabelEl()
-        v.text = "0:00"
+        v.text = "-:--"
         v.textAlignment = .right
         return v
     }()
@@ -162,43 +144,65 @@ class PlayerController: UIViewController {
     private func initViews() {
         view.addSubview(corePlayerEl.viewEl)
         
-        let coverWidth = view.bounds.width * 0.648
+        let coverWidth = view.bounds.width * 0.824
         
         view.addSubview(coverEl)
         coverEl.widthAnchorToEqual(width: coverWidth)
         coverEl.heightAnchorToEqual(height: coverWidth)
+        coverEl.topAnchorToEqual(view.topAnchor, constant: 30)
         coverEl.centerXAnchorToEqual(view.centerXAnchor)
-        coverEl.topAnchorToEqual(view.topAnchor, constant: 35)
         
         view.addSubview(sliderProgressEl)
-        sliderProgressEl.topAnchorToEqual(coverEl.bottomAnchor, constant: 21)
-        sliderProgressEl.leftAnchorToEqual(coverEl.leftAnchor, constant: -23)
-        sliderProgressEl.rightAnchorToEqual(coverEl.rightAnchor, constant: 23)
+        sliderProgressEl.topAnchorToEqual(coverEl.bottomAnchor, constant: 11)
+        sliderProgressEl.leftAnchorToEqual(coverEl.leftAnchor, constant: 40)
+        sliderProgressEl.rightAnchorToEqual(coverEl.rightAnchor, constant: -40)
         
         view.addSubview(labelStart)
-        labelStart.topAnchorToEqual(sliderProgressEl.bottomAnchor, constant: 1)
-        labelStart.leftAnchorToEqual(sliderProgressEl.leftAnchor)
+        labelStart.centerYAnchorToEqual(sliderProgressEl.centerYAnchor)
+        labelStart.leftAnchorToEqual(coverEl.leftAnchor)
         
         view.addSubview(labelEnd)
-        labelEnd.topAnchorToEqual(sliderProgressEl.bottomAnchor, constant: 1)
-        labelEnd.rightAnchorToEqual(sliderProgressEl.rightAnchor)
+        labelEnd.centerYAnchorToEqual(sliderProgressEl.centerYAnchor)
+        labelEnd.rightAnchorToEqual(coverEl.rightAnchor)
         
         view.addSubview(songInfoEl)
         songInfoEl.heightAnchorToEqual(height: 50)
-        songInfoEl.topAnchorToEqual(labelEnd.bottomAnchor, constant: 10)
+        songInfoEl.topAnchorToEqual(sliderProgressEl.bottomAnchor, constant: 11)
         songInfoEl.leftAnchorToEqual(coverEl.leftAnchor)
         songInfoEl.rightAnchorToEqual(coverEl.rightAnchor)
         
         view.addSubview(playControlsEl)
-        playControlsEl.topAnchorToEqual(songInfoEl.bottomAnchor, constant: 16)
+        playControlsEl.topAnchorToEqual(songInfoEl.bottomAnchor, constant: 7)
         playControlsEl.leftAnchorToEqual(coverEl.leftAnchor)
         playControlsEl.rightAnchorToEqual(coverEl.rightAnchor)
         
-        view.addSubview(volumeSliderEl.view)
-        volumeSliderEl.view.heightAnchorToEqual(height: 21)
-        volumeSliderEl.view.topAnchorToEqual(playControlsEl.bottomAnchor, constant: 26)
-        volumeSliderEl.view.leftAnchorToEqual(coverEl.leftAnchor, constant: -17)
-        volumeSliderEl.view.rightAnchorToEqual(coverEl.rightAnchor, constant: 28)
+        let sectionBtnsWidth: CGFloat = 54
+        let songsBtnEl = UIButton()
+        songsBtnEl.setImage(#imageLiteral(resourceName: "icon - songs"), for: .normal)
+        
+        view.addSubview(songsBtnEl)
+        songsBtnEl.topAnchorToEqual(playControlsEl.bottomAnchor, constant: 30)
+        songsBtnEl.leftAnchorToEqual(coverEl.leftAnchor)
+        songsBtnEl.widthAnchorToEqual(width: sectionBtnsWidth)
+        songsBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
+        
+        let currentPlaylistBtnEl = UIButton()
+        currentPlaylistBtnEl.setImage(#imageLiteral(resourceName: "icon - currentplaylist"), for: .normal)
+        
+        view.addSubview(currentPlaylistBtnEl)
+        currentPlaylistBtnEl.topAnchorToEqual(playControlsEl.bottomAnchor, constant: 30)
+        currentPlaylistBtnEl.centerXAnchorToEqual(view.centerXAnchor)
+        currentPlaylistBtnEl.widthAnchorToEqual(width: sectionBtnsWidth)
+        currentPlaylistBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
+        
+        let playlistsBtnEl = UIButton()
+        playlistsBtnEl.setImage(#imageLiteral(resourceName: "icon - playlists"), for: .normal)
+        
+        view.addSubview(playlistsBtnEl)
+        playlistsBtnEl.topAnchorToEqual(playControlsEl.bottomAnchor, constant: 30)
+        playlistsBtnEl.rightAnchorToEqual(coverEl.rightAnchor)
+        playlistsBtnEl.widthAnchorToEqual(width: sectionBtnsWidth)
+        playlistsBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
     }
     
     // MARK: - Life Cycles
@@ -255,10 +259,6 @@ class PlayerController: UIViewController {
         if currentIdxToPlay == self.songs.count - 1 { return }
         currentIdxToPlay += 1
         handleSongUpdate(songs[currentIdxToPlay])
-    }
-    
-    @objc private func handleVolumeChange() {
-        corePlayerEl.player.volume = volumeSliderEl.slider.value
     }
     
     private func handleSongUpdate(_ song: SongModel) {

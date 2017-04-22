@@ -24,7 +24,7 @@ class PlayerController: UIViewController {
     
     private let playEl = UIButton()
     private lazy var corePlayerEl: CorePlayer = {
-        let v = CorePlayer(onProgress: self.handleProgress)
+        let v = CorePlayer(onProgress: self.handleProgress, onSongFinished: self.handleSongFinished)
         return v
     }()
     
@@ -255,6 +255,11 @@ class PlayerController: UIViewController {
     
     @objc private func handleVolumeChange() {
         corePlayerEl.player.volume = volumeSliderEl.slider.value
+    }
+    
+    private func handleSongFinished() {
+        nextSong()
+        playSong()
     }
     
     // MARK: - API Methods

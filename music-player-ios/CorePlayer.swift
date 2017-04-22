@@ -13,22 +13,26 @@ class CorePlayer: UIView {
     // MARK: - Typealiases
     
     typealias OnProgress = (_ currentTime: Double, _ duration: Double) -> Void
+    typealias OnSongFinished = () -> Void
     
     // MARK: - Properties
     
     private var onProgress: OnProgress?
     public let viewEl = UIView()
     private var progressTimer: Timer?
+    private var onSongFinished: OnSongFinished?
     public let player = AVPlayer(playerItem: nil)
     
     // MARK: - Inits
     
-    init(onProgress: OnProgress?) {
+    init(onProgress: OnProgress? = nil, onSongFinished: OnSongFinished? = nil) {
         super.init(frame: .zero)
         self.onProgress = onProgress
+        self.onSongFinished = onSongFinished
 
         let avPlayerLayer = AVPlayerLayer(player: player)
         viewEl.layer.addSublayer(avPlayerLayer)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleEndOfSong), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -52,6 +56,10 @@ class CorePlayer: UIView {
     
     private func getSongUrl(id: String) -> URL? {
         return URL(string: "http://localhost:3000/song-files/\(id)")
+    }
+    
+    @objc private func handleEndOfSong() {
+        onSongFinished?()
     }
     
     // MARK: - API Methods

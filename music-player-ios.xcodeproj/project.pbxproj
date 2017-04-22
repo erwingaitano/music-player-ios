@@ -22,6 +22,8 @@
 		AA0703A21EAB09280033318D /* AppSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703A11EAB09280033318D /* AppSingleton.swift */; };
 		AA0703A51EABB7510033318D /* SongsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703A41EABB7510033318D /* SongsController.swift */; };
 		AA0703A71EABC2A40033318D /* MediaCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703A61EABC2A40033318D /* MediaCell.swift */; };
+		AA0703A91EABC5410033318D /* SongsSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703A81EABC5410033318D /* SongsSingleton.swift */; };
+		AA0703AB1EABCADC0033318D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703AA1EABCADC0033318D /* NotificationExtensions.swift */; };
 		F24FDBA6F828DCA1D56554BE /* Pods_music_player_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9A77F2C07A7025C366BD46 /* Pods_music_player_ios.framework */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +46,8 @@
 		AA0703A11EAB09280033318D /* AppSingleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSingleton.swift; sourceTree = "<group>"; };
 		AA0703A41EABB7510033318D /* SongsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SongsController.swift; sourceTree = "<group>"; };
 		AA0703A61EABC2A40033318D /* MediaCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaCell.swift; sourceTree = "<group>"; };
+		AA0703A81EABC5410033318D /* SongsSingleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SongsSingleton.swift; sourceTree = "<group>"; };
+		AA0703AA1EABCADC0033318D /* NotificationExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		D7DA41FDA6397D2ADD231E20 /* Pods-music-player-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-music-player-ios.release.xcconfig"; path = "Pods/Target Support Files/Pods-music-player-ios/Pods-music-player-ios.release.xcconfig"; sourceTree = "<group>"; };
 		FC9A77F2C07A7025C366BD46 /* Pods_music_player_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_music_player_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -122,6 +126,7 @@
 				AA07038D1EA9F7100033318D /* ViewExtensions.swift */,
 				AA0703981EAA67920033318D /* ColorExtensions.swift */,
 				AA07039C1EAA7E830033318D /* BasicExtensions.swift */,
+				AA0703AA1EABCADC0033318D /* NotificationExtensions.swift */,
 			);
 			name = _extensions;
 			sourceTree = "<group>";
@@ -146,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0703A11EAB09280033318D /* AppSingleton.swift */,
+				AA0703A81EABC5410033318D /* SongsSingleton.swift */,
 			);
 			name = _singletons;
 			sourceTree = "<group>";
@@ -287,6 +293,8 @@
 				AA0703941EAA1FE20033318D /* ApiEndpoints.swift in Sources */,
 				AA0703921EAA1C740033318D /* GeneralHelpers.swift in Sources */,
 				AA07039D1EAA7E830033318D /* BasicExtensions.swift in Sources */,
+				AA0703A91EABC5410033318D /* SongsSingleton.swift in Sources */,
+				AA0703AB1EABCADC0033318D /* NotificationExtensions.swift in Sources */,
 				AA0703901EAA103C0033318D /* CorePlayer.swift in Sources */,
 				AA07038E1EA9F7100033318D /* ViewExtensions.swift in Sources */,
 				AA07039F1EAAECCD0033318D /* SongModel.swift in Sources */,

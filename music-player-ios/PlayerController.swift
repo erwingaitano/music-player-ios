@@ -129,12 +129,10 @@ class PlayerController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         UIApplication.shared.statusBarStyle = .lightContent
         view.backgroundColor = .black
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSongsUpdate), name: .CustomSongsUpdated, object: nil)
         
         initViews()
-        _ = ApiEndpoints.getSongs().promise.then(execute: { songs -> Void in
-            self.songs = songs
-            self.handleSongUpdate(songs[0])
-        })
+        SongsSingleton.songs.update()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -206,6 +204,10 @@ class PlayerController: UIViewController {
         playlistsBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // MARK: - Life Cycles
 
     override func viewDidLayoutSubviews() {
@@ -213,6 +215,11 @@ class PlayerController: UIViewController {
     }
     
     // MARK: - Private Methods
+    
+    @objc private func handleSongsUpdate() {
+        songs = SongsSingleton.songs.items
+        startPlaylist(songs, shouldStartPlaying: false)
+    }
     
     @objc private func handleSliderRelease() {
         corePlayerEl.setTime(time: Double(sliderProgressEl.value))
@@ -253,16 +260,16 @@ class PlayerController: UIViewController {
     @objc private func prevSong() {
         if currentIdxToPlay == 0 { return }
         currentIdxToPlay -= 1
-        handleSongUpdate(songs[currentIdxToPlay])
+        updateCurrentSong(songs[currentIdxToPlay])
     }
     
     @objc private func nextSong() {
         if currentIdxToPlay == self.songs.count - 1 { return }
         currentIdxToPlay += 1
-        handleSongUpdate(songs[currentIdxToPlay])
+        updateCurrentSong(songs[currentIdxToPlay])
     }
     
-    private func handleSongUpdate(_ song: SongModel) {
+    private func updateCurrentSong(_ song: SongModel) {
         corePlayerEl.updateSong(id: song.id)
         (songInfoEl.subviews[0] as! UILabel).text = song.name
         (songInfoEl.subviews[1] as! UILabel).text = song.album ?? "Album Unknown"
@@ -272,7 +279,7 @@ class PlayerController: UIViewController {
         if (currentIdxToPlay == songs.count - 1) {
             pauseSong()
             currentIdxToPlay = 0
-            handleSongUpdate(songs[currentIdxToPlay])
+            updateCurrentSong(songs[currentIdxToPlay])
             return
         }
         
@@ -280,8 +287,21 @@ class PlayerController: UIViewController {
         playSong()
     }
     
+    private func handleSongSelected(song: SongModel) {
+        startPlaylist([song])
+    }
+    
+    private func startPlaylist(_ songs: [SongModel], shouldStartPlaying: Bool = true) {
+        self.songs = songs
+        currentIdxToPlay = 0
+        updateCurrentSong(songs[0])
+        
+        if shouldStartPlaying { playSong() }
+        else { pauseSong() }
+    }
+    
     @objc private func handleSongsBtnElClick() {
-        present(SongsController(), animated: true, completion: nil)
+        present(SongsController(onSongSelected: handleSongSelected), animated: true, completion: nil)
     }
     
     // MARK: - API Methods

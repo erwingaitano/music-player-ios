@@ -18,7 +18,7 @@ class ApiEndpoints {
     // MARK: - Private Methods
     
     private static func getPostJson(httpMethod: HTTPMethod, url: String? = nil, qs: [String: String] = [:], options: [String: Bool] = [:], forcedDelay: Double = 0) -> PromiseEl {
-        let url = AppSingleton.app.apiUrl + (url ?? "")
+        let url = AppSingleton.app.host + (url ?? "")
         
         // This cookie header is to avoid Alamofire from sending a cookie session id so making DJango servers to
         // require a valid csrftoken!

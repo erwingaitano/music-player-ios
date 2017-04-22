@@ -9,6 +9,5 @@
 class AppSingleton {
     public static let app = AppSingleton()
     
-    public let apiUrl = "http://localhost:3000"
-    
+    public let host = "http://192.168.1.54:3000"
 }

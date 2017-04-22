@@ -55,7 +55,7 @@ class CorePlayer: UIView {
     }
     
     private func getSongUrl(id: String) -> URL? {
-        return URL(string: "http://localhost:3000/song-files/\(id)")
+        return URL(string: "\(AppSingleton.app.host)/song-files/\(id)")
     }
     
     @objc private func handleEndOfSong() {

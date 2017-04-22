@@ -75,18 +75,15 @@ class PlayerController: UIViewController {
         v.distribution = .fillEqually
         
         self.playEl.setImage(#imageLiteral(resourceName: "icon - play"), for: .normal)
-        self.playEl.widthAnchorToEqual(width: 60 * 0.85)
         self.playEl.heightAnchorToEqual(height: 60)
         self.playEl.addTarget(self, action: #selector(handlePlayBtn), for: .touchUpInside)
         
         let prevEl = UIButton()
         prevEl.setImage(#imageLiteral(resourceName: "icon - fastbackward"), for: .normal)
-        prevEl.widthAnchorToEqual(width: 60 * 0.85)
         prevEl.addTarget(self, action: #selector(prevSong), for: .touchUpInside)
         
         let nextEl = UIButton()
         nextEl.setImage(#imageLiteral(resourceName: "icon - fastforward"), for: .normal)
-        nextEl.widthAnchorToEqual(width: 60 * 0.85)
         nextEl.addTarget(self, action: #selector(nextSong), for: .touchUpInside)
         
         v.addArrangedSubview(prevEl)

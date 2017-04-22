@@ -392,6 +392,7 @@
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
 				DEVELOPMENT_TEAM = PCZ58H68H5;
 				INFOPLIST_FILE = "music-player-ios/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.erwingo.music-player-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -407,6 +408,7 @@
 				DEBUG_ACTIVITY_MODE = "";
 				DEVELOPMENT_TEAM = PCZ58H68H5;
 				INFOPLIST_FILE = "music-player-ios/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.erwingo.music-player-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";

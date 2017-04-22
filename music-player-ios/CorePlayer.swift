@@ -8,11 +8,13 @@
 
 import UIKit
 import AVFoundation
+import PromiseKit
 
 class CorePlayer: UIView {
     // MARK: - Typealiases
     
     typealias OnProgress = (_ currentTime: Double, _ duration: Double) -> Void
+    private var updateSongPromiseConstructor: Promise<Any>.PendingTuple!
     typealias OnSongFinished = () -> Void
     
     // MARK: - Properties
@@ -29,9 +31,10 @@ class CorePlayer: UIView {
         super.init(frame: .zero)
         self.onProgress = onProgress
         self.onSongFinished = onSongFinished
-
+        
         let avPlayerLayer = AVPlayerLayer(player: player)
         viewEl.layer.addSublayer(avPlayerLayer)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleEndOfSong), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
     }
     
@@ -40,6 +43,12 @@ class CorePlayer: UIView {
     }
     
     // MARK: - Private Methods
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "status" && (object as? AVPlayerItem) == player.currentItem {
+            updateSongPromiseConstructor.fulfill(true)
+        }
+    }
     
     private func handleSongProgress(_: Timer) {
         guard let currentItem = player.currentItem else { return }
@@ -87,15 +96,19 @@ class CorePlayer: UIView {
         }
     }
     
-    public func updateSong(id: String) {
-        guard let url = getSongUrl(id: id) else { return }
+    public func updateSong(id: String) -> ApiEndpoints.PromiseEl? {
+        
+        updateSongPromiseConstructor = Promise<Any>.pending()
+        guard let url = getSongUrl(id: id) else {
+            return nil
+        }
 
+        player.currentItem?.removeObserver(self, forKeyPath: "status")
+        
         let playerItem = AVPlayerItem(url: url)
         player.replaceCurrentItem(with: playerItem)
+        player.currentItem?.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
         setTime(time: 0)
-    }
-    
-    public func getSystemVolume() -> Float {
-        return AVAudioSession.sharedInstance().outputVolume
+        return (updateSongPromiseConstructor.promise, { self.updateSongPromiseConstructor.reject(NSError.cancelledError()) })
     }
 }

@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import AVFoundation
+import MediaPlayer
 
 class PlayerController: UIViewController {
     // MARK: - Properties
@@ -30,7 +32,7 @@ class PlayerController: UIViewController {
     
     private let playEl = UIButton()
     private lazy var corePlayerEl: CorePlayer = {
-        let v = CorePlayer(onProgress: self.handleProgress, onSongFinished: self.handleSongFinished)
+        let v = CorePlayer(onProgress: self.updateTimeLabels, onSongFinished: self.handleSongFinished)
         return v
     }()
     
@@ -132,6 +134,7 @@ class PlayerController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(handleSongsUpdate), name: .CustomSongsUpdated, object: nil)
         
         initViews()
+        initRemoteControlsAndMusicInBackground()
         SongsSingleton.songs.update()
     }
     
@@ -204,6 +207,20 @@ class PlayerController: UIViewController {
         playlistsBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
     }
     
+    private func initRemoteControlsAndMusicInBackground() {
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        
+        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        
+        let remoteCommandCenter = MPRemoteCommandCenter.shared()
+        remoteCommandCenter.pauseCommand.addTarget(handler: handleRemotePauseCommand)
+        remoteCommandCenter.playCommand.addTarget(handler: handleRemotePlayCommand)
+        remoteCommandCenter.nextTrackCommand.addTarget(handler: handleRemoteNextCommand)
+        remoteCommandCenter.previousTrackCommand.addTarget(handler: handleRemotePreviousCommand)
+        remoteCommandCenter.changePlaybackPositionCommand.addTarget(handler: handleRemoteProgressSliderCommand)
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -222,14 +239,14 @@ class PlayerController: UIViewController {
     }
     
     @objc private func handleSliderRelease() {
-        corePlayerEl.setTime(time: Double(sliderProgressEl.value))
+        jumpToSongTime(time: Double(sliderProgressEl.value))
     }
     
     @objc private func handleSliderChange() {
         corePlayerEl.cancelProgressTimer()
     }
     
-    private func handleProgress(currentTime: Double, duration: Double) {
+    private func updateTimeLabels(currentTime: Double, duration: Double) {
         if !duration.isNaN {
             sliderProgressEl.maximumValue = Float(duration)
             labelEnd.text = Int(duration).getMinuteSecondFormattedString()
@@ -260,26 +277,50 @@ class PlayerController: UIViewController {
     @objc private func prevSong() {
         if currentIdxToPlay == 0 { return }
         currentIdxToPlay -= 1
-        updateCurrentSong(songs[currentIdxToPlay])
+        updateSong(songs[currentIdxToPlay])
     }
     
     @objc private func nextSong() {
         if currentIdxToPlay == self.songs.count - 1 { return }
         currentIdxToPlay += 1
-        updateCurrentSong(songs[currentIdxToPlay])
+        updateSong(songs[currentIdxToPlay])
     }
     
-    private func updateCurrentSong(_ song: SongModel) {
-        corePlayerEl.updateSong(id: song.id)
-        (songInfoEl.subviews[0] as! UILabel).text = song.name
-        (songInfoEl.subviews[1] as! UILabel).text = song.album ?? "Album Unknown"
+    private func jumpToSongTime(time: Double) {
+        corePlayerEl.setTime(time: time)
+    }
+    
+    private var updateSongPromiseEl: ApiEndpoints.PromiseEl?
+    
+    private func updateSong(_ song: SongModel) {
+        let name = song.name
+        let album = song.album ?? "Album Unknown"
+        (self.songInfoEl.subviews[0] as! UILabel).text = name
+        (self.songInfoEl.subviews[1] as! UILabel).text = album
+        
+        updateSongPromiseEl?.canceler()
+        updateSongPromiseEl = corePlayerEl.updateSong(id: song.id)
+        _ = updateSongPromiseEl?.promise.then(execute: { _ -> Void in
+            let duration = CMTimeGetSeconds(self.corePlayerEl.player.currentItem!.duration)
+            
+            
+            // update remote player info
+            self.updateTimeLabels(currentTime: 0, duration: duration)
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+                MPMediaItemPropertyTitle: name,
+                MPMediaItemPropertyAlbumTitle: album,
+                MPMediaItemPropertyPlaybackDuration: duration,
+                MPNowPlayingInfoPropertyPlaybackProgress: 40
+            ]
+        })
+        
     }
     
     private func handleSongFinished() {
         if (currentIdxToPlay == songs.count - 1) {
             pauseSong()
             currentIdxToPlay = 0
-            updateCurrentSong(songs[currentIdxToPlay])
+            updateSong(songs[currentIdxToPlay])
             return
         }
         
@@ -294,7 +335,7 @@ class PlayerController: UIViewController {
     private func startPlaylist(_ songs: [SongModel], shouldStartPlaying: Bool = true) {
         self.songs = songs
         currentIdxToPlay = 0
-        updateCurrentSong(songs[0])
+        updateSong(songs[0])
         
         if shouldStartPlaying { playSong() }
         else { pauseSong() }
@@ -302,6 +343,32 @@ class PlayerController: UIViewController {
     
     @objc private func handleSongsBtnElClick() {
         present(SongsController(onSongSelected: handleSongSelected), animated: true, completion: nil)
+    }
+    
+    private func handleRemotePauseCommand(_: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        pauseSong()
+        return .success
+    }
+    
+    private func handleRemotePlayCommand(_: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        playSong()
+        return .success
+    }
+    
+    private func handleRemoteNextCommand(_: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        nextSong()
+        return .success
+    }
+    
+    private func handleRemotePreviousCommand(_: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        prevSong()
+        return .success
+    }
+    
+    private func handleRemoteProgressSliderCommand(e: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        let e = e as! MPChangePlaybackPositionCommandEvent
+        print(e.positionTime)
+        return .success
     }
     
     // MARK: - API Methods

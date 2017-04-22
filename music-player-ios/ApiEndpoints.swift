@@ -53,7 +53,18 @@ class ApiEndpoints {
     
     // MARK: - API Methods
     
-    public static func getSongs() -> PromiseEl {
-        return getJson(url: "/")
+    public static func getSongs() -> (promise: Promise<[SongModel]>, canceler: () -> Void) {
+        let promiseEl = getJson(url: "/")
+        
+        let promise = promiseEl.promise.then { response -> [SongModel] in
+            guard let songs = response as? [Any] else { return [] }
+            return songs.map({ song -> SongModel in
+                let name = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "name") as! String
+                let id = GeneralHelpers.getStringFromJsonDotNotation(json: song, dotNotation: "id")
+                return SongModel(id: id, name: name, authors: nil, album: nil)
+            })
+        }
+        
+        return (promise, promiseEl.canceler)
     }
 }

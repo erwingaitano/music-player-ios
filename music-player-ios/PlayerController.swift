@@ -11,14 +11,21 @@ import UIKit
 class PlayerController: UIViewController {
     // MARK: - Properties
 
-    private var songIdsToPlay: [String] = []
+    private var songs: [SongModel] = []
     private var currentIdxToPlay: Int = 0
     
+    private var coverGradientEl: CAGradientLayer!
     private lazy var coverEl: UIImageView = {
         let v = UIImageView()
         v.contentMode = .scaleAspectFill
-        v.backgroundColor = UIColor.lightGray
+        v.backgroundColor = UIColor.hexStringToUIColor(hex: "#aaaaaa")
         v.layer.cornerRadius = 10
+        v.clipsToBounds = true
+        
+        self.coverGradientEl = CAGradientLayer()
+        self.coverGradientEl.colors = [UIColor.black.withAlphaComponent(0.5).cgColor, UIColor.black.withAlphaComponent(0.75).cgColor]
+        self.coverGradientEl.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+        v.layer.addSublayer(self.coverGradientEl)
         return v
     }()
     
@@ -145,16 +152,10 @@ class PlayerController: UIViewController {
         view.backgroundColor = .black
         
         initViews()
-        _ = ApiEndpoints.getSongs().promise.then { json -> Void in
-            guard let songs = json as? [Any] else { return }
-            self.songIdsToPlay = songs.map({ song -> String in
-//                let name = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "name") as! String
-                let id = GeneralHelpers.getStringFromJsonDotNotation(json: song, dotNotation: "id")
-                return id
-            })
-         
-            self.corePlayerEl.updateSong(id: self.songIdsToPlay[0])
-        }
+        _ = ApiEndpoints.getSongs().promise.then(execute: { songs -> Void in
+            self.songs = songs
+            self.handleSongUpdate(songs[0])
+        })
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -203,6 +204,12 @@ class PlayerController: UIViewController {
         volumeSliderEl.view.rightAnchorToEqual(coverEl.rightAnchor, constant: 28)
     }
     
+    // MARK: - Life Cycles
+
+    override func viewDidLayoutSubviews() {
+        coverGradientEl.frame = coverEl.bounds
+    }
+    
     // MARK: - Private Methods
     
     @objc private func handleSliderRelease() {
@@ -244,20 +251,32 @@ class PlayerController: UIViewController {
     @objc private func prevSong() {
         if currentIdxToPlay == 0 { return }
         currentIdxToPlay -= 1
-        corePlayerEl.updateSong(id: songIdsToPlay[currentIdxToPlay])
+        handleSongUpdate(songs[currentIdxToPlay])
     }
     
     @objc private func nextSong() {
-        if currentIdxToPlay == songIdsToPlay.count - 1 { return }
+        if currentIdxToPlay == self.songs.count - 1 { return }
         currentIdxToPlay += 1
-        corePlayerEl.updateSong(id: songIdsToPlay[currentIdxToPlay])
+        handleSongUpdate(songs[currentIdxToPlay])
     }
     
     @objc private func handleVolumeChange() {
         corePlayerEl.player.volume = volumeSliderEl.slider.value
     }
     
+    private func handleSongUpdate(_ song: SongModel) {
+        corePlayerEl.updateSong(id: song.id)
+        (songInfoEl.subviews[0] as! UILabel).text = song.name
+        (songInfoEl.subviews[1] as! UILabel).text = song.album ?? "Album Unknown"
+    }
+    
     private func handleSongFinished() {
+        if (currentIdxToPlay == songs.count - 1) {
+            currentIdxToPlay = 0
+            handleSongUpdate(songs[currentIdxToPlay])
+            return
+        }
+        
         nextSong()
         playSong()
     }

@@ -89,11 +89,8 @@ class CorePlayer: UIView {
     
     public func updateSong(id: String) {
         guard let url = getSongUrl(id: id) else { return }
-        
-        player.currentItem?.removeObserver(self, forKeyPath: "status")
-        
+
         let playerItem = AVPlayerItem(url: url)
-        playerItem.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
         player.replaceCurrentItem(with: playerItem)
         setTime(time: 0)
     }

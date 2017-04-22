@@ -179,6 +179,7 @@ class PlayerController: UIViewController {
         let sectionBtnsWidth: CGFloat = 54
         let songsBtnEl = UIButton()
         songsBtnEl.setImage(#imageLiteral(resourceName: "icon - songs"), for: .normal)
+        songsBtnEl.addTarget(self, action: #selector(handleSongsBtnElClick), for: .touchUpInside)
         
         view.addSubview(songsBtnEl)
         songsBtnEl.topAnchorToEqual(playControlsEl.bottomAnchor, constant: 30)
@@ -233,19 +234,19 @@ class PlayerController: UIViewController {
     
     @objc private func handlePlayBtn() {
         if corePlayerEl.player.rate != 0 && corePlayerEl.player.error == nil {
-            playEl.setImage(#imageLiteral(resourceName: "icon - play"), for: .normal)
             pauseSong()
         } else {
-            playEl.setImage(#imageLiteral(resourceName: "icon - pause"), for: .normal)
             playSong()
         }
     }
     
     private func playSong() {
+        playEl.setImage(#imageLiteral(resourceName: "icon - pause"), for: .normal)
         corePlayerEl.playSong()
     }
     
     private func pauseSong() {
+        playEl.setImage(#imageLiteral(resourceName: "icon - play"), for: .normal)
         corePlayerEl.pauseSong()
     }
     
@@ -269,6 +270,7 @@ class PlayerController: UIViewController {
     
     private func handleSongFinished() {
         if (currentIdxToPlay == songs.count - 1) {
+            pauseSong()
             currentIdxToPlay = 0
             handleSongUpdate(songs[currentIdxToPlay])
             return
@@ -276,6 +278,10 @@ class PlayerController: UIViewController {
         
         nextSong()
         playSong()
+    }
+    
+    @objc private func handleSongsBtnElClick() {
+        present(SongsController(), animated: true, completion: nil)
     }
     
     // MARK: - API Methods

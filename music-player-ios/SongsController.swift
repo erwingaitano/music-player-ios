@@ -27,8 +27,18 @@ class SongsController: UIViewController, UITableViewDelegate, UITableViewDataSou
     
     private var tableEl: UITableView = {
         let v = UITableView()
-        v.backgroundColor = .blue
+        v.backgroundColor = .black
         v.separatorStyle = .none
+        return v
+    }()
+    
+    private lazy var closeBtnEl: UIButton = {
+        let v = UIButton()
+        v.addTarget(self, action: #selector(self.dismissView), for: .touchUpInside)
+        
+        v.widthAnchorToEqual(width: 25)
+        v.heightAnchorToEqual(height: 17)
+        v.setImage(#imageLiteral(resourceName: "icon - arrowdown"), for: .normal)
         return v
     }()
     
@@ -42,12 +52,17 @@ class SongsController: UIViewController, UITableViewDelegate, UITableViewDataSou
         tableEl.delegate = self
         tableEl.dataSource = self
         tableEl.register(MediaCell.self, forCellReuseIdentifier: cellId)
-        view.backgroundColor = .red
+        view.backgroundColor = .black
         NotificationCenter.default.addObserver(self, selector: #selector(handleSongsUpdate), name: .CustomSongsUpdated, object: nil)
         
+        
         view.addSubview(titleEl)
-        titleEl.topAnchorToEqual(view.topAnchor, constant: 20)
+        titleEl.topAnchorToEqual(view.topAnchor, constant: 30)
         titleEl.leftAnchorToEqual(view.leftAnchor, constant: 20)
+        
+        view.addSubview(closeBtnEl)
+        closeBtnEl.centerYAnchorToEqual(titleEl.centerYAnchor)
+        closeBtnEl.rightAnchorToEqual(view.rightAnchor, constant: -19)
         
         view.addSubview(tableEl)
         tableEl.topAnchorToEqual(titleEl.bottomAnchor, constant: 20)
@@ -77,6 +92,10 @@ class SongsController: UIViewController, UITableViewDelegate, UITableViewDataSou
         tableEl.reloadData()
     }
     
+    @objc private func dismissView() {
+        dismiss(animated: true, completion: nil)
+    }
+    
     // MARK: - Delegates
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -97,6 +116,6 @@ class SongsController: UIViewController, UITableViewDelegate, UITableViewDataSou
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         onSongSelected?(data[indexPath.row])
-        dismiss(animated: true, completion: nil)
+        dismissView()
     }
 }

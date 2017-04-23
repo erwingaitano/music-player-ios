@@ -35,6 +35,7 @@ class CorePlayer: UIView {
         let avPlayerLayer = AVPlayerLayer(player: player)
         viewEl.layer.addSublayer(avPlayerLayer)
         
+        player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 10), queue: DispatchQueue.main, using: handlePeriodicTime)
         NotificationCenter.default.addObserver(self, selector: #selector(handleEndOfSong), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
     }
     
@@ -57,10 +58,17 @@ class CorePlayer: UIView {
         onProgress?(currentTime, duration)
     }
     
+    private func handlePeriodicTime(_: CMTime) {
+        guard let currentItem = player.currentItem else { return }
+        let duration = CMTimeGetSeconds(currentItem.duration)
+        let currentTime = CMTimeGetSeconds(currentItem.currentTime())
+        onProgress?(currentTime, duration)
+    }
+    
     private func startProgressTimer() {
-        if progressTimer == nil {
-            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true, block: handleSongProgress)
-        }
+//        if progressTimer == nil {
+//            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true, block: handleSongProgress)
+//        }
     }
     
     private func getSongUrl(id: String) -> URL? {
@@ -90,21 +98,20 @@ class CorePlayer: UIView {
     }
     
     public func cancelProgressTimer() {
-        if progressTimer != nil {
-            progressTimer!.invalidate()
-            progressTimer = nil
-        }
+//        if progressTimer != nil {
+//            progressTimer!.invalidate()
+//            progressTimer = nil
+//        }
     }
     
     public func updateSong(id: String) -> ApiEndpoints.PromiseEl? {
-        
         updateSongPromiseConstructor = Promise<Any>.pending()
         guard let url = getSongUrl(id: id) else {
             return nil
         }
 
         player.currentItem?.removeObserver(self, forKeyPath: "status")
-        
+
         let playerItem = AVPlayerItem(url: url)
         player.replaceCurrentItem(with: playerItem)
         player.currentItem?.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)

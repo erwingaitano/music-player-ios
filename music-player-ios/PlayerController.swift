@@ -32,7 +32,7 @@ class PlayerController: UIViewController {
     
     private let playEl = UIButton()
     private lazy var corePlayerEl: CorePlayer = {
-        let v = CorePlayer(onProgress: self.updateTimeLabels, onSongFinished: self.handleSongFinished)
+        let v = CorePlayer(onProgress: self.handleSongProgress, onSongFinished: self.handleSongFinished)
         return v
     }()
     
@@ -246,14 +246,9 @@ class PlayerController: UIViewController {
         corePlayerEl.cancelProgressTimer()
     }
     
-    private func updateTimeLabels(currentTime: Double, duration: Double) {
-        if !duration.isNaN {
-            sliderProgressEl.maximumValue = Float(duration)
-            labelEnd.text = Int(duration).getMinuteSecondFormattedString()
-        }
-        
-        sliderProgressEl.setValue(Float(currentTime), animated: true)
-        labelStart.text = Int(currentTime).getMinuteSecondFormattedString()
+    private func handleSongProgress(currentTime: Double, duration: Double) {
+        updateTimeLabels(currentTime: currentTime, duration: duration)
+        if !sliderProgressEl.isTracking { updateSlider(currentTime: currentTime, duration: duration) }
     }
     
     @objc private func handlePlayBtn() {
@@ -262,6 +257,16 @@ class PlayerController: UIViewController {
         } else {
             playSong()
         }
+    }
+    
+    private func updateTimeLabels(currentTime: Double, duration: Double) {
+        if !duration.isNaN { labelEnd.text = Int(duration).getMinuteSecondFormattedString() }
+        labelStart.text = Int(currentTime).getMinuteSecondFormattedString()
+    }
+    
+    private func updateSlider(currentTime: Double, duration: Double) {
+        if !duration.isNaN { sliderProgressEl.maximumValue = Float(duration) }
+        sliderProgressEl.setValue(Float(currentTime), animated: true)
     }
     
     private func playSong() {
@@ -303,9 +308,10 @@ class PlayerController: UIViewController {
         _ = updateSongPromiseEl?.promise.then(execute: { _ -> Void in
             let duration = CMTimeGetSeconds(self.corePlayerEl.player.currentItem!.duration)
             
+            self.updateTimeLabels(currentTime: 0, duration: duration)
+            self.updateSlider(currentTime: 0, duration: duration)
             
             // update remote player info
-            self.updateTimeLabels(currentTime: 0, duration: duration)
             MPNowPlayingInfoCenter.default().nowPlayingInfo = [
                 MPMediaItemPropertyTitle: name,
                 MPMediaItemPropertyAlbumTitle: album,

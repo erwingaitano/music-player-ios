@@ -259,7 +259,13 @@ class PlayerController: UIViewController {
         }
     }
     
-    private func updateTimeLabels(currentTime: Double, duration: Double) {
+    private func updateTimeLabels(currentTime: Double?, duration: Double?) {
+        guard let currentTime = currentTime, let duration = duration else {
+            labelStart.text = "-:--"
+            labelEnd.text = "-:--"
+            return
+        }
+        
         if !duration.isNaN { labelEnd.text = Int(duration).getMinuteSecondFormattedString() }
         labelStart.text = Int(currentTime).getMinuteSecondFormattedString()
     }
@@ -302,6 +308,11 @@ class PlayerController: UIViewController {
         let album = song.album ?? "Album Unknown"
         (self.songInfoEl.subviews[0] as! UILabel).text = name
         (self.songInfoEl.subviews[1] as! UILabel).text = album
+        updateTimeLabels(currentTime: nil, duration: nil)
+        
+        updateRemoteSongInfo(name: name, album: album, currentTime: nil, duration: nil, options: ["resetTimeLabels"])
+        self.updateSlider(currentTime: 0, duration: 0)
+        self.updateTimeLabels(currentTime: nil, duration: nil)
         
         updateSongPromiseEl?.canceler()
         updateSongPromiseEl = corePlayerEl.updateSong(id: song.id)
@@ -310,16 +321,8 @@ class PlayerController: UIViewController {
             
             self.updateTimeLabels(currentTime: 0, duration: duration)
             self.updateSlider(currentTime: 0, duration: duration)
-            
-            // update remote player info
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-                MPMediaItemPropertyTitle: name,
-                MPMediaItemPropertyAlbumTitle: album,
-                MPMediaItemPropertyPlaybackDuration: duration,
-                MPNowPlayingInfoPropertyPlaybackProgress: 40
-            ]
+            self.updateRemoteSongInfo(currentTime: 0, duration: duration)
         })
-        
     }
     
     private func handleSongFinished() {
@@ -349,6 +352,29 @@ class PlayerController: UIViewController {
     
     @objc private func handleSongsBtnElClick() {
         present(SongsController(onSongSelected: handleSongSelected), animated: true, completion: nil)
+    }
+    
+    private func updateRemoteSongInfo(name: String? = nil, album: String? = nil, currentTime: Double? = nil, duration: Double? = nil, playbackRate: Double? = nil, options: [String] = []) {
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let name = name ?? nowPlayingInfo?[MPMediaItemPropertyTitle] ?? ""
+        let album = album ?? nowPlayingInfo?[MPMediaItemPropertyAlbumTitle] ?? ""
+        let duration = duration ?? nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] ?? 0
+        let currentTime = currentTime ?? nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] ?? 0
+        let playbackRate = playbackRate ?? nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] ?? 0
+        
+        var values = [
+            MPMediaItemPropertyTitle: name,
+            MPMediaItemPropertyAlbumTitle: album,
+            MPMediaItemPropertyPlaybackDuration: duration,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
+            MPNowPlayingInfoPropertyPlaybackRate: playbackRate
+        ]
+        if (options.contains("resetTimeLabels")) {
+            values.removeValue(forKey: MPNowPlayingInfoPropertyElapsedPlaybackTime)
+            values.removeValue(forKey: MPMediaItemPropertyPlaybackDuration)
+        }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = values
     }
     
     private func handleRemotePauseCommand(_: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {

@@ -24,6 +24,7 @@ class CorePlayer: UIView {
     private var progressTimer: Timer?
     private var onSongFinished: OnSongFinished?
     public let player = AVPlayer(playerItem: nil)
+    private var songJustStartedObserver: Any!
     
     // MARK: - Inits
     
@@ -35,20 +36,32 @@ class CorePlayer: UIView {
         let avPlayerLayer = AVPlayerLayer(player: player)
         viewEl.layer.addSublayer(avPlayerLayer)
         
-        player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 10), queue: DispatchQueue.main, using: handlePeriodicTime)
+//        player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 10), queue: DispatchQueue.main, using: handlePeriodicTime)
         NotificationCenter.default.addObserver(self, selector: #selector(handleEndOfSong), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
+
+        // NOTE: This observer is not triggered when outside the app, you you need to use 
+        //       the observer for the status of player.currentItem
+//        songJustStartedObserver = player.addBoundaryTimeObserver(forTimes: [NSValue(time: CMTime(seconds: 1, preferredTimescale: 100))], queue: nil, using: {
+//            self.updateSongPromiseConstructor.fulfill(true)
+//        })
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+//        player.removeTimeObserver(songJustStartedObserver)
+    }
+    
     // MARK: - Private Methods
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "status" && (object as? AVPlayerItem) == player.currentItem {
-            updateSongPromiseConstructor.fulfill(true)
-        }
+//        if keyPath == "status" && (object as? AVPlayerItem) == player.currentItem {
+//            if player.status == .readyToPlay {
+//                updateSongPromiseConstructor.fulfill(true)
+//            }
+//        }
     }
     
     private func handleSongProgress(_: Timer) {
@@ -56,6 +69,10 @@ class CorePlayer: UIView {
         let duration = CMTimeGetSeconds(currentItem.duration)
         let currentTime = CMTimeGetSeconds(currentItem.currentTime())
         onProgress?(currentTime, duration)
+        print(player.status == .readyToPlay, duration)
+        if player.status == .readyToPlay {
+            updateSongPromiseConstructor.fulfill(true)
+        }
     }
     
     private func handlePeriodicTime(_: CMTime) {
@@ -65,17 +82,12 @@ class CorePlayer: UIView {
         onProgress?(currentTime, duration)
     }
     
-    private func startProgressTimer() {
-//        if progressTimer == nil {
-//            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true, block: handleSongProgress)
-//        }
-    }
-    
     private func getSongUrl(id: String) -> URL? {
         return URL(string: "\(AppSingleton.app.host)/song-files/\(id)")
     }
     
     @objc private func handleEndOfSong() {
+        print("song finished")
         onSongFinished?()
     }
     
@@ -97,11 +109,18 @@ class CorePlayer: UIView {
         player.pause()
     }
     
+    private func startProgressTimer() {
+        if progressTimer == nil {
+            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true, block: handleSongProgress)
+        }
+    }
+    
     public func cancelProgressTimer() {
-//        if progressTimer != nil {
-//            progressTimer!.invalidate()
-//            progressTimer = nil
-//        }
+        print("Canceled")
+        if progressTimer != nil {
+            progressTimer!.invalidate()
+            progressTimer = nil
+        }
     }
     
     public func updateSong(id: String) -> ApiEndpoints.PromiseEl? {
@@ -110,11 +129,11 @@ class CorePlayer: UIView {
             return nil
         }
 
-        player.currentItem?.removeObserver(self, forKeyPath: "status")
+//        player.currentItem?.removeObserver(self, forKeyPath: "status")
 
         let playerItem = AVPlayerItem(url: url)
         player.replaceCurrentItem(with: playerItem)
-        player.currentItem?.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+//        player.currentItem?.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
         setTime(time: 0)
         return (updateSongPromiseConstructor.promise, { self.updateSongPromiseConstructor.reject(NSError.cancelledError()) })
     }

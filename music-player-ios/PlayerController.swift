@@ -210,8 +210,8 @@ class PlayerController: UIViewController {
     private func initRemoteControlsAndMusicInBackground() {
         UIApplication.shared.beginReceivingRemoteControlEvents()
         
-        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-        try? AVAudioSession.sharedInstance().setActive(true)
+        try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        try! AVAudioSession.sharedInstance().setActive(true)
         
         let remoteCommandCenter = MPRemoteCommandCenter.shared()
         remoteCommandCenter.pauseCommand.addTarget(handler: handleRemotePauseCommand)
@@ -260,13 +260,13 @@ class PlayerController: UIViewController {
     }
     
     private func updateTimeLabels(currentTime: Double?, duration: Double?) {
-        guard let currentTime = currentTime, let duration = duration else {
+        guard let currentTime = currentTime, let duration = duration, !duration.isNaN else {
             labelStart.text = "-:--"
             labelEnd.text = "-:--"
             return
         }
         
-        if !duration.isNaN { labelEnd.text = Int(duration).getMinuteSecondFormattedString() }
+        labelEnd.text = Int(duration).getMinuteSecondFormattedString()
         labelStart.text = Int(currentTime).getMinuteSecondFormattedString()
     }
     
@@ -277,11 +277,13 @@ class PlayerController: UIViewController {
     
     private func playSong() {
         playEl.setImage(#imageLiteral(resourceName: "icon - pause"), for: .normal)
+        updateRemoteSongInfo(playbackRate: 1)
         corePlayerEl.playSong()
     }
     
     private func pauseSong() {
         playEl.setImage(#imageLiteral(resourceName: "icon - play"), for: .normal)
+        updateRemoteSongInfo(playbackRate: 0)
         corePlayerEl.pauseSong()
     }
     
@@ -308,11 +310,10 @@ class PlayerController: UIViewController {
         let album = song.album ?? "Album Unknown"
         (self.songInfoEl.subviews[0] as! UILabel).text = name
         (self.songInfoEl.subviews[1] as! UILabel).text = album
-        updateTimeLabels(currentTime: nil, duration: nil)
         
         updateRemoteSongInfo(name: name, album: album, currentTime: nil, duration: nil, options: ["resetTimeLabels"])
-        self.updateSlider(currentTime: 0, duration: 0)
-        self.updateTimeLabels(currentTime: nil, duration: nil)
+        updateSlider(currentTime: 0, duration: 0)
+        updateTimeLabels(currentTime: nil, duration: nil)
         
         updateSongPromiseEl?.canceler()
         updateSongPromiseEl = corePlayerEl.updateSong(id: song.id)

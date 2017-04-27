@@ -112,4 +112,14 @@ class MediaCell: UITableViewCell {
             imageEl.image = nil
         }
     }
+    
+    // MARK: - API Methods
+
+    public func highlight(_ isHighlighted: Bool = true) {
+        if isHighlighted {
+            containerEl.backgroundColor = UIColor.hexStringToUIColor(hex: "#333333")
+        } else {
+            containerEl.backgroundColor = .black
+        }
+    }
 }

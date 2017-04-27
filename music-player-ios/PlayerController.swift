@@ -16,20 +16,9 @@ class PlayerController: UIViewController {
 
     private var songs: [SongModel] = []
     private var currentIdxToPlay: Int = 0
+    private var updateSongPromiseEl: ApiEndpoints.PromiseEl?
     
-    private var coverGradientEl: CAGradientLayer!
-    private lazy var coverEl: UIImageView = {
-        let v = UIImageView()
-        v.contentMode = .scaleAspectFill
-        v.backgroundColor = UIColor.hexStringToUIColor(hex: "#aaaaaa")
-        v.clipsToBounds = true
-        
-        self.coverGradientEl = CAGradientLayer()
-        self.coverGradientEl.colors = [UIColor.black.withAlphaComponent(0.5).cgColor, UIColor.black.withAlphaComponent(0.75).cgColor]
-        self.coverGradientEl.frame = CGRect(x: 0, y: 0, width: 400, height: 400)
-        v.layer.addSublayer(self.coverGradientEl)
-        return v
-    }()
+    private lazy var coverEl = PlayerCover()
     
     private let playEl = UIButton()
     private lazy var corePlayerEl: CorePlayer = {
@@ -228,9 +217,9 @@ class PlayerController: UIViewController {
     
     // MARK: - Life Cycles
 
-    override func viewDidLayoutSubviews() {
-        coverGradientEl.frame = coverEl.bounds
-    }
+//    override func viewDidLayoutSubviews() {
+//        coverGradientEl.frame = coverEl.bounds
+//    }
     
     // MARK: - Private Methods
     
@@ -304,16 +293,15 @@ class PlayerController: UIViewController {
         corePlayerEl.setTime(time: time)
     }
     
-    private var updateSongPromiseEl: ApiEndpoints.PromiseEl?
-    
     private func updateSong(_ song: SongModel) {
         let name = song.name
-        let album = song.album ?? "Album Unknown"
+        let albumArtist = GeneralHelpers.getAlbumArtist(album: song.album, artist: song.artist)
         (self.songInfoEl.subviews[0] as! UILabel).text = name
-        (self.songInfoEl.subviews[1] as! UILabel).text = album
-        coverEl.kf.setImage(with: URL(string: AppSingleton.getCoverUrl(url: "/api/covers/_artists/Keane/_albums/Under the Iron Sea/_covers/1.jpg"))!)
+        (self.songInfoEl.subviews[1] as! UILabel).text = albumArtist
         
-        updateRemoteSongInfo(name: name, album: album, currentTime: nil, duration: nil, options: ["resetTimeLabels"])
+        coverEl.setCovers(song.allCovers)
+        
+        updateRemoteSongInfo(name: name, album: albumArtist, currentTime: nil, duration: nil, options: ["resetTimeLabels"])
         updateSlider(currentTime: 0, duration: 0)
         updateTimeLabels(currentTime: nil, duration: nil)
         

@@ -109,7 +109,8 @@ class SongsController: UIViewController, UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! MediaCell
         let data = self.data[indexPath.row]
-        cell.data = MediaCell.Data(title: data.name, subtitle: data.album ?? "-")
+        let imageUrl = data.allCovers.count == 0 ? nil : data.allCovers[0]
+        cell.data = MediaCell.Data(title: data.name, subtitle: GeneralHelpers.getAlbumArtist(album: data.album, artist: data.artist), imageUrl: imageUrl)
         
         return cell
     }

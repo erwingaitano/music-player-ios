@@ -14,6 +14,7 @@ class MediaCell: UITableViewCell {
     struct Data {
         var title: String
         var subtitle: String
+        var imageUrl: String?
     }
     
     // MARK: - Properties
@@ -22,6 +23,7 @@ class MediaCell: UITableViewCell {
         didSet {
             titleEl.text = data.title
             subtitleEl.text = data.subtitle
+            setImage(data.imageUrl)
         }
     }
     
@@ -34,6 +36,7 @@ class MediaCell: UITableViewCell {
     private var imageEl: UIImageView = {
         let v = UIImageView()
         v.contentMode = .scaleAspectFill
+        v.clipsToBounds = true
         v.backgroundColor = UIColor.hexStringToUIColor(hex: "#D8D8D8")
         return v
     }()
@@ -97,5 +100,15 @@ class MediaCell: UITableViewCell {
         subtitleEl.heightAnchorToEqual(height: 18)
         subtitleEl.topAnchorToEqual(titleEl.bottomAnchor, constant: 4)
         subtitleEl.leftAnchorToEqual(titleEl.leftAnchor)
+    }
+    
+    // MARK: - Private Methods
+
+    private func setImage(_ imageUrl: String?) {
+        if let imageUrl = imageUrl {
+            imageEl.kf.setImage(with: URL(string: GeneralHelpers.getCoverUrl(imageUrl)))
+        } else {
+            imageEl.image = nil
+        }
     }
 }

@@ -26,8 +26,4 @@ class SongsSingleton {
             NotificationCenter.default.post(name: .CustomSongsUpdated, object: nil)
         })
     }
-    
-    public static func getSongUrl(id: String) -> URL? {
-        return URL(string: "\(AppSingleton.app.apiUrl)/songs/\(id)/file")
-    }
 }

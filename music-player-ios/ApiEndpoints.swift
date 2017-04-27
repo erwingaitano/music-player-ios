@@ -55,9 +55,14 @@ class ApiEndpoints {
         let promise = promiseEl.promise.then { response -> [SongModel] in
             guard let songs = response as? [Any] else { return [] }
             return songs.map({ song -> SongModel in
-                let name = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "name") as! String
-                let id = GeneralHelpers.getStringFromJsonDotNotation(json: song, dotNotation: "id")
-                return SongModel(id: id, name: name, authors: nil, album: nil)
+                let id = GeneralHelpers.getStringFromJsonDotNotation(json: song, dotNotation: "song_id")
+                let name = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "song_name") as! String
+                let album = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "album_name") as? String
+                let artist = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "artist_name") as? String
+                let songCovers = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "song_covers") as? [String]
+                let albumCovers = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "album_covers") as? [String]
+                let artistCovers = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "artist_covers") as? [String]
+                return SongModel(id: id, name: name, artist: artist, album: album, songCovers: songCovers, albumCovers: albumCovers, artistCovers: artistCovers)
             })
         }
         

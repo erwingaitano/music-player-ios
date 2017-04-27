@@ -121,7 +121,7 @@ class CorePlayer: UIView {
     
     public func updateSong(id: String) -> ApiEndpoints.PromiseEl? {
         updateSongPromiseConstructor = Promise<Any>.pending()
-        guard let url = SongsSingleton.getSongUrl(id: id) else {
+        guard let url = GeneralHelpers.getSongUrl(id: id) else {
             return nil
         }
 

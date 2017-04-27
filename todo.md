@@ -1,3 +1,6 @@
+- show the name of album - artist
+- show the covers
+- show cover in song lists
 
 # TODO
 - show current playlists

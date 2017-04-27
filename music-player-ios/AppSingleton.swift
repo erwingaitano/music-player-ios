@@ -10,10 +10,4 @@ class AppSingleton {
     public static let app = AppSingleton()
     
     public let apiUrl = "http://192.168.1.54:3000/api"
-    
-    // MARK: - API Methods
-    
-    public static func getCoverUrl(url: String) -> String {
-        return "\(AppSingleton.app.apiUrl)/covers\(url)"
-    }
 }

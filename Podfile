@@ -9,5 +9,5 @@ target 'music-player-ios' do
   pod 'Alamofire', '~> 4.3'
   pod 'PromiseKit/Alamofire', '~> 4.0'
   pod "PromiseKit", "~> 4.0"
-
+  pod 'Kingfisher', '~> 3.0'
 end

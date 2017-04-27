@@ -10,42 +10,42 @@ import UIKit
 
 class PlaylistsController: UIViewController {
     // MARK: - Properties
-    
+
     private var listViewEl: ListView!
-    
+
     // MARK: - Inits
-    
+
     init(onItemSelected: ListView.OnItemSelected? = nil) {
         super.init(nibName: nil, bundle: nil)
-        listViewEl = ListView("All Songs", onItemSelected: onItemSelected, onCloseClick: handleCloseClick)
+        listViewEl = ListView("All Playlists", onItemSelected: onItemSelected, onCloseClick: handleCloseClick)
         NotificationCenter.default.addObserver(self, selector: #selector(handlePlaylistUpdate), name: .CustomPlaylistsUpdated, object: nil)
         view = listViewEl
-        
+
         updateData()
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func handleCloseClick() {
         dismissView()
     }
-    
+
     @objc private func handlePlaylistUpdate() {
         updateData()
     }
-    
+
     private func updateData() {
         listViewEl.updateData(ListView.getMediaCellDataArrayFromPlaylistModelArray(SongsSingleton.songs.playlists))
     }
-    
+
     @objc private func dismissView() {
         dismiss(animated: true, completion: nil)
     }

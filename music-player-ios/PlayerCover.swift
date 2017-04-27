@@ -56,7 +56,7 @@ class PlayerCover: UIView {
             return
         }
         
-        imageViewEl.kf.setImage(with: URL(string: GeneralHelpers.getCoverUrl(coverUrls[coverToRotateIdx])), completionHandler: { (image, error, _, _) in
+        imageViewEl.kf.setImage(with: URL(string: GeneralHelpers.getCoverUrl(coverUrls[coverToRotateIdx])), placeholder: self.imageViewEl.image, completionHandler: { (image, error, _, _) in
             if image != nil && error == nil {
                 self.coverGradientEl.removeFromSuperlayer()
             } else {

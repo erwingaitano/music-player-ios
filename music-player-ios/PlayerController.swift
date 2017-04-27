@@ -338,7 +338,8 @@ class PlayerController: UIViewController {
     
     private func handleItemForCurrentPlaylistItemSelected(item: MediaCell.Data) {
         playSong()
-        updateSong(songs.filter({ $0.id == item.id })[0])
+        currentIdxToPlay = songs.index(where: { $0.id == item.id })!
+        updateSong(songs[currentIdxToPlay])
     }
     
     private func handleItemForPlaylistSelected(playlist: MediaCell.Data) {

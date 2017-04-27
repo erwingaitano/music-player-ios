@@ -8,15 +8,12 @@
 
 import UIKit
 
-protocol SongsSingletonDataDelegate {
-    func erwin()
-}
-
 class SongsSingleton {
     // MARK: - Properties
 
     public static let songs = SongsSingleton()
     public private(set) var items: [SongModel] = []
+    public private(set) var playlists: [PlaylistModel] = []
     
     // MARK: - API Methods
 
@@ -24,6 +21,13 @@ class SongsSingleton {
         _ = ApiEndpoints.getSongs().promise.then(execute: { songs -> Void in
             self.items = songs
             NotificationCenter.default.post(name: .CustomSongsUpdated, object: nil)
+        })
+    }
+    
+    public func updatePlaylists() {
+        _ = ApiEndpoints.getPlaylists().promise.then(execute: { playlists -> Void in
+            self.playlists = playlists
+            NotificationCenter.default.post(name: .CustomPlaylistsUpdated, object: nil)
         })
     }
 }

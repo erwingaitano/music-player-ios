@@ -12,6 +12,7 @@ class MediaCell: UITableViewCell {
     // MARK: - Structs
     
     struct Data {
+        var id: String
         var title: String
         var subtitle: String
         var imageUrl: String?

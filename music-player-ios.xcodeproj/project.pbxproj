@@ -25,6 +25,10 @@
 		AA0703A91EABC5410033318D /* SongsSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703A81EABC5410033318D /* SongsSingleton.swift */; };
 		AA0703AB1EABCADC0033318D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0703AA1EABCADC0033318D /* NotificationExtensions.swift */; };
 		AA8A11451EB1CD73008637CF /* PlayerCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8A11441EB1CD73008637CF /* PlayerCover.swift */; };
+		AA8A11471EB1EC3D008637CF /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8A11461EB1EC3D008637CF /* ListView.swift */; };
+		AA8A11491EB1F1D2008637CF /* CurrentPlaylistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8A11481EB1F1D2008637CF /* CurrentPlaylistController.swift */; };
+		AA8A114B1EB1F47A008637CF /* PlaylistsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8A114A1EB1F47A008637CF /* PlaylistsController.swift */; };
+		AA8A114D1EB1F61B008637CF /* PlaylistModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8A114C1EB1F61B008637CF /* PlaylistModel.swift */; };
 		F24FDBA6F828DCA1D56554BE /* Pods_music_player_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9A77F2C07A7025C366BD46 /* Pods_music_player_ios.framework */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +54,10 @@
 		AA0703A81EABC5410033318D /* SongsSingleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SongsSingleton.swift; sourceTree = "<group>"; };
 		AA0703AA1EABCADC0033318D /* NotificationExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		AA8A11441EB1CD73008637CF /* PlayerCover.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerCover.swift; sourceTree = "<group>"; };
+		AA8A11461EB1EC3D008637CF /* ListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
+		AA8A11481EB1F1D2008637CF /* CurrentPlaylistController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentPlaylistController.swift; sourceTree = "<group>"; };
+		AA8A114A1EB1F47A008637CF /* PlaylistsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistsController.swift; sourceTree = "<group>"; };
+		AA8A114C1EB1F61B008637CF /* PlaylistModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistModel.swift; sourceTree = "<group>"; };
 		D7DA41FDA6397D2ADD231E20 /* Pods-music-player-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-music-player-ios.release.xcconfig"; path = "Pods/Target Support Files/Pods-music-player-ios/Pods-music-player-ios.release.xcconfig"; sourceTree = "<group>"; };
 		FC9A77F2C07A7025C366BD46 /* Pods_music_player_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_music_player_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -118,6 +126,9 @@
 				AA0703961EAA60370033318D /* Slider.swift */,
 				AA0703A41EABB7510033318D /* SongsController.swift */,
 				AA0703A61EABC2A40033318D /* MediaCell.swift */,
+				AA8A11461EB1EC3D008637CF /* ListView.swift */,
+				AA8A11481EB1F1D2008637CF /* CurrentPlaylistController.swift */,
+				AA8A114A1EB1F47A008637CF /* PlaylistsController.swift */,
 			);
 			name = _components;
 			sourceTree = "<group>";
@@ -145,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				AA07039E1EAAECCD0033318D /* SongModel.swift */,
+				AA8A114C1EB1F61B008637CF /* PlaylistModel.swift */,
 			);
 			name = _models;
 			sourceTree = "<group>";
@@ -304,13 +316,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA07038A1EA9EB070033318D /* PlayerController.swift in Sources */,
+				AA8A114D1EB1F61B008637CF /* PlaylistModel.swift in Sources */,
 				AA0703A21EAB09280033318D /* AppSingleton.swift in Sources */,
 				AA0703A71EABC2A40033318D /* MediaCell.swift in Sources */,
 				AA0703941EAA1FE20033318D /* ApiEndpoints.swift in Sources */,
 				AA0703921EAA1C740033318D /* GeneralHelpers.swift in Sources */,
 				AA07039D1EAA7E830033318D /* BasicExtensions.swift in Sources */,
 				AA0703A91EABC5410033318D /* SongsSingleton.swift in Sources */,
+				AA8A11471EB1EC3D008637CF /* ListView.swift in Sources */,
 				AA0703AB1EABCADC0033318D /* NotificationExtensions.swift in Sources */,
+				AA8A114B1EB1F47A008637CF /* PlaylistsController.swift in Sources */,
 				AA8A11451EB1CD73008637CF /* PlayerCover.swift in Sources */,
 				AA0703901EAA103C0033318D /* CorePlayer.swift in Sources */,
 				AA07038E1EA9F7100033318D /* ViewExtensions.swift in Sources */,
@@ -319,6 +334,7 @@
 				AA0703971EAA60370033318D /* Slider.swift in Sources */,
 				AA0703A51EABB7510033318D /* SongsController.swift in Sources */,
 				AA0703991EAA67920033318D /* ColorExtensions.swift in Sources */,
+				AA8A11491EB1F1D2008637CF /* CurrentPlaylistController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

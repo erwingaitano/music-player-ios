@@ -1,5 +1,5 @@
 //
-//  SongsController.swift
+//  CurrentPlaylistController.swift
 //  music-player-ios
 //
 //  Created by Erwin GO on 4/22/17.
@@ -8,20 +8,18 @@
 
 import UIKit
 
-class SongsController: UIViewController {
+class CurrentPlaylistController: UIViewController {
     // MARK: - Properties
     
     private var listViewEl: ListView!
     
     // MARK: - Inits
-
-    init(onItemSelected: ListView.OnItemSelected? = nil) {
+    
+    init(_ songs: [SongModel], onItemSelected: ListView.OnItemSelected? = nil) {
         super.init(nibName: nil, bundle: nil)
-        listViewEl = ListView("All Songs", onItemSelected: onItemSelected, onCloseClick: handleCloseClick)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleSongsUpdate), name: .CustomSongsUpdated, object: nil)
+        listViewEl = ListView("Current Playlist", onItemSelected: onItemSelected, onCloseClick: handleCloseClick)
         view = listViewEl
-        
-        updateData()
+        listViewEl.updateData(ListView.getMediaCellDataArrayFromSongModelArray(songs))
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -36,14 +34,6 @@ class SongsController: UIViewController {
     
     private func handleCloseClick() {
         dismissView()
-    }
-
-    @objc private func handleSongsUpdate() {
-        updateData()
-    }
-    
-    private func updateData() {
-        listViewEl.updateData(ListView.getMediaCellDataArrayFromSongModelArray(SongsSingleton.songs.items))
     }
     
     @objc private func dismissView() {

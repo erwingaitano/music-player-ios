@@ -14,6 +14,7 @@ class ApiEndpoints {
     
     typealias ResponseJson = (DataResponse<Any>) -> ()
     typealias PromiseEl = (promise: Promise<Any>, canceler: () -> Void)
+    typealias SongsPromiseEl = (promise: Promise<[SongModel]>, canceler: () -> Void)
     
     // MARK: - Private Methods
     
@@ -47,12 +48,8 @@ class ApiEndpoints {
         return getPostJson(httpMethod: .post, url: url, qs: qs, options: options, forcedDelay: forcedDelay)
     }
     
-    // MARK: - API Methods
-    
-    public static func getSongs() -> (promise: Promise<[SongModel]>, canceler: () -> Void) {
-        let promiseEl = getJson(url: "/songs", forcedDelay: 2)
-        
-        let promise = promiseEl.promise.then { response -> [SongModel] in
+    private static func getSongPromise(promiseEl: PromiseEl) -> Promise<[SongModel]> {
+        return promiseEl.promise.then { response -> [SongModel] in
             guard let songs = response as? [Any] else { return [] }
             return songs.map({ song -> SongModel in
                 let id = GeneralHelpers.getStringFromJsonDotNotation(json: song, dotNotation: "song_id")
@@ -63,6 +60,33 @@ class ApiEndpoints {
                 let albumCovers = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "album_covers") as? [String]
                 let artistCovers = GeneralHelpers.getJsonValueWithDotNotation(json: song, dotNotation: "artist_covers") as? [String]
                 return SongModel(id: id, name: name, artist: artist, album: album, songCovers: songCovers, albumCovers: albumCovers, artistCovers: artistCovers)
+            })
+        }
+    }
+    
+    // MARK: - API Methods
+    
+    public static func getSongs() -> SongsPromiseEl {
+        let promiseEl = getJson(url: "/songs", forcedDelay: 2)
+        let promise = getSongPromise(promiseEl: promiseEl)
+        return (promise, promiseEl.canceler)
+    }
+    
+    public static func getPlaylistSongs(_ playlistId: String) -> SongsPromiseEl {
+        let promiseEl = getJson(url: "/playlists/\(playlistId)/songs", forcedDelay: 2)
+        let promise = getSongPromise(promiseEl: promiseEl)
+        return (promise, promiseEl.canceler)
+    }
+    
+    public static func getPlaylists() -> (promise: Promise<[PlaylistModel]>, canceler: () -> Void) {
+        let promiseEl = getJson(url: "/playlists", forcedDelay: 2)
+        
+        let promise = promiseEl.promise.then { response -> [PlaylistModel] in
+            guard let playlists = response as? [Any] else { return [] }
+            return playlists.map({ playlist -> PlaylistModel in
+                let id = GeneralHelpers.getStringFromJsonDotNotation(json: playlist, dotNotation: "id")
+                let name = GeneralHelpers.getJsonValueWithDotNotation(json: playlist, dotNotation: "name") as! String
+                return PlaylistModel(id: id, name: name)
             })
         }
         

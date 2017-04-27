@@ -1,10 +1,12 @@
 - show the name of album - artist
 - show the covers
 - show cover in song lists
-
-# TODO
 - show current playlists
 - show playlists
+
+# TODO
+- allow shuffle music
+- allow repeat music
 - download music to local
 - remote player controls
   - fix remote slider

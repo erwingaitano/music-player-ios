@@ -17,6 +17,7 @@ class PlayerController: UIViewController {
     private var songs: [SongModel] = []
     private var currentIdxToPlay: Int = 0
     private var updateSongPromiseEl: ApiEndpoints.PromiseEl?
+    private var getPlaylistSongsPromiseEl: ApiEndpoints.SongsPromiseEl?
     
     private lazy var coverEl = PlayerCover()
     
@@ -126,6 +127,7 @@ class PlayerController: UIViewController {
         initViews()
         initRemoteControlsAndMusicInBackground()
         SongsSingleton.songs.update()
+        SongsSingleton.songs.updatePlaylists()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -186,6 +188,7 @@ class PlayerController: UIViewController {
         currentPlaylistBtnEl.centerXAnchorToEqual(view.centerXAnchor)
         currentPlaylistBtnEl.widthAnchorToEqual(width: sectionBtnsWidth)
         currentPlaylistBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
+        currentPlaylistBtnEl.addTarget(self, action: #selector(handleCurrentPlaylistBtnElClick), for: .touchUpInside)
         
         let playlistsBtnEl = UIButton()
         playlistsBtnEl.setImage(#imageLiteral(resourceName: "icon - playlists"), for: .normal)
@@ -195,6 +198,7 @@ class PlayerController: UIViewController {
         playlistsBtnEl.rightAnchorToEqual(coverEl.rightAnchor)
         playlistsBtnEl.widthAnchorToEqual(width: sectionBtnsWidth)
         playlistsBtnEl.heightAnchorToEqual(height: sectionBtnsWidth)
+        playlistsBtnEl.addTarget(self, action: #selector(handlePlaylistsBtnElClick), for: .touchUpInside)
     }
     
     private func initRemoteControlsAndMusicInBackground() {
@@ -328,8 +332,21 @@ class PlayerController: UIViewController {
         playSong()
     }
     
-    private func handleSongSelected(song: SongModel) {
-        startPlaylist([song])
+    private func handleItemForSongSelected(item: MediaCell.Data) {
+        startPlaylist(SongsSingleton.songs.items.filter({ $0.id == item.id }))
+    }
+    
+    private func handleItemForCurrentPlaylistItemSelected(item: MediaCell.Data) {
+        playSong()
+        updateSong(songs.filter({ $0.id == item.id })[0])
+    }
+    
+    private func handleItemForPlaylistSelected(playlist: MediaCell.Data) {
+        getPlaylistSongsPromiseEl?.canceler()
+        
+        getPlaylistSongsPromiseEl = ApiEndpoints.getPlaylistSongs(playlist.id)
+        _ = getPlaylistSongsPromiseEl?.promise
+        .then { songs -> Void in self.startPlaylist(songs) }
     }
     
     private func startPlaylist(_ songs: [SongModel], shouldStartPlaying: Bool = true) {
@@ -342,7 +359,15 @@ class PlayerController: UIViewController {
     }
     
     @objc private func handleSongsBtnElClick() {
-        present(SongsController(onSongSelected: handleSongSelected), animated: true, completion: nil)
+        present(SongsController(onItemSelected: handleItemForSongSelected), animated: true, completion: nil)
+    }
+    
+    @objc private func handleCurrentPlaylistBtnElClick() {
+        present(CurrentPlaylistController(songs, onItemSelected: handleItemForCurrentPlaylistItemSelected), animated: true, completion: nil)
+    }
+    
+    @objc private func handlePlaylistsBtnElClick() {
+        present(PlaylistsController(onItemSelected: handleItemForPlaylistSelected), animated: true, completion: nil)
     }
     
     private func updateRemoteSongInfo(name: String? = nil, album: String? = nil, currentTime: Double? = nil, duration: Double? = nil, playbackRate: Double? = nil, options: [String] = []) {
@@ -394,9 +419,7 @@ class PlayerController: UIViewController {
         return .success
     }
     
-    // MARK: - API Methods
-    
-    public static func getTimeLabelEl() -> UILabel {
+    private static func getTimeLabelEl() -> UILabel {
         let v = UILabel()
         v.font = UIFont.systemFont(ofSize: 13)
         v.textColor = .white

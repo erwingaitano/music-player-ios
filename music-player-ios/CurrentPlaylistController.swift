@@ -12,12 +12,14 @@ class CurrentPlaylistController: UIViewController {
     // MARK: - Properties
     
     private var listViewEl: ListView!
+    private var onItemSelected: ListView.OnItemSelected?
     
     // MARK: - Inits
     
     init(_ songs: [SongModel], onItemSelected: ListView.OnItemSelected? = nil) {
         super.init(nibName: nil, bundle: nil)
-        listViewEl = ListView("Current Playlist", onItemSelected: onItemSelected, onCloseClick: handleCloseClick)
+        self.onItemSelected = onItemSelected
+        listViewEl = ListView("Current Playlist", onItemSelected: handleItemSelected, onCloseClick: handleCloseClick)
         view = listViewEl
         listViewEl.updateData(ListView.getMediaCellDataArrayFromSongModelArray(songs))
     }
@@ -31,6 +33,11 @@ class CurrentPlaylistController: UIViewController {
     }
     
     // MARK: - Private Methods
+    
+    private func handleItemSelected(_ item: MediaCell.Data) {
+        onItemSelected?(item)
+        dismissView()
+    }
     
     private func handleCloseClick() {
         dismissView()

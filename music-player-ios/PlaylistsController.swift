@@ -12,12 +12,14 @@ class PlaylistsController: UIViewController {
     // MARK: - Properties
 
     private var listViewEl: ListView!
+    private var onItemSelected: ListView.OnItemSelected?
 
     // MARK: - Inits
 
     init(onItemSelected: ListView.OnItemSelected? = nil) {
         super.init(nibName: nil, bundle: nil)
-        listViewEl = ListView("All Playlists", onItemSelected: onItemSelected, onCloseClick: handleCloseClick)
+        self.onItemSelected = onItemSelected
+        listViewEl = ListView("All Playlists", onItemSelected: handleItemSelected, onCloseClick: handleCloseClick)
         NotificationCenter.default.addObserver(self, selector: #selector(handlePlaylistUpdate), name: .CustomPlaylistsUpdated, object: nil)
         view = listViewEl
 
@@ -33,6 +35,11 @@ class PlaylistsController: UIViewController {
     }
 
     // MARK: - Private Methods
+    
+    private func handleItemSelected(_ item: MediaCell.Data) {
+        onItemSelected?(item)
+        dismissView()
+    }
 
     private func handleCloseClick() {
         dismissView()

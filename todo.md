@@ -1,5 +1,7 @@
 
 # TODO
+- show current playlists
+- show playlists
 - download music to local
 - remote player controls
   - fix remote slider

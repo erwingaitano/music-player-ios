@@ -82,10 +82,6 @@ class CorePlayer: UIView {
         onProgress?(currentTime, duration)
     }
     
-    private func getSongUrl(id: String) -> URL? {
-        return URL(string: "\(AppSingleton.app.host)/song-files/\(id)")
-    }
-    
     @objc private func handleEndOfSong() {
         print("song finished")
         onSongFinished?()
@@ -125,7 +121,7 @@ class CorePlayer: UIView {
     
     public func updateSong(id: String) -> ApiEndpoints.PromiseEl? {
         updateSongPromiseConstructor = Promise<Any>.pending()
-        guard let url = getSongUrl(id: id) else {
+        guard let url = SongsSingleton.getSongUrl(id: id) else {
             return nil
         }
 

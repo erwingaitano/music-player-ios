@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
+import Kingfisher
 
 class PlayerController: UIViewController {
     // MARK: - Properties
@@ -310,6 +311,7 @@ class PlayerController: UIViewController {
         let album = song.album ?? "Album Unknown"
         (self.songInfoEl.subviews[0] as! UILabel).text = name
         (self.songInfoEl.subviews[1] as! UILabel).text = album
+        coverEl.kf.setImage(with: URL(string: AppSingleton.getCoverUrl(url: "/api/covers/_artists/Keane/_albums/Under the Iron Sea/_covers/1.jpg"))!)
         
         updateRemoteSongInfo(name: name, album: album, currentTime: nil, duration: nil, options: ["resetTimeLabels"])
         updateSlider(currentTime: 0, duration: 0)

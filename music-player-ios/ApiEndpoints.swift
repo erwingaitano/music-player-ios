@@ -18,7 +18,7 @@ class ApiEndpoints {
     // MARK: - Private Methods
     
     private static func getPostJson(httpMethod: HTTPMethod, url: String? = nil, qs: [String: String] = [:], options: [String: Bool] = [:], forcedDelay: Double = 0) -> PromiseEl {
-        let url = AppSingleton.app.host + (url ?? "")
+        let url = AppSingleton.app.apiUrl + (url ?? "")
         
         // This cookie header is to avoid Alamofire from sending a cookie session id so making DJango servers to
         // require a valid csrftoken!
@@ -50,7 +50,7 @@ class ApiEndpoints {
     // MARK: - API Methods
     
     public static func getSongs() -> (promise: Promise<[SongModel]>, canceler: () -> Void) {
-        let promiseEl = getJson(url: "/", forcedDelay: 2)
+        let promiseEl = getJson(url: "/songs", forcedDelay: 2)
         
         let promise = promiseEl.promise.then { response -> [SongModel] in
             guard let songs = response as? [Any] else { return [] }

@@ -32,6 +32,7 @@ class CorePlayer: UIView {
         super.init(frame: .zero)
         self.onProgress = onProgress
         self.onSongFinished = onSongFinished
+        player.volume = 1
         
         let avPlayerLayer = AVPlayerLayer(player: player)
         viewEl.layer.addSublayer(avPlayerLayer)

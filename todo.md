@@ -5,8 +5,10 @@
 - show playlists
 
 # TODO
+- u should be able to drag down the rollups
 - allow shuffle music
 - allow repeat music
+- forward/backward music timeline when holding respective btns
 - download music to local
 - remote player controls
   - fix remote slider

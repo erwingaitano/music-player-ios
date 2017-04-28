@@ -1,6 +1,6 @@
 //
-//  ApiEndpoints.swift
-//  Squad
+//  ApiEndpointsHelpers.swift
+//  music-player
 //
 //  Created by Erwin GO on 2/23/17.
 //  Copyright © 2017 Erwin GO. All rights reserved.
@@ -9,7 +9,7 @@
 import Alamofire
 import PromiseKit
 
-class ApiEndpoints {
+class ApiEndpointsHelpers {
     // MARK: - Typealiases
     
     typealias ResponseJson = (DataResponse<Any>) -> ()

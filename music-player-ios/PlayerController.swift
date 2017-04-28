@@ -16,14 +16,14 @@ class PlayerController: UIViewController {
 
     private var songs: [SongModel] = []
     private var currentIdxToPlay: Int = 0
-    private var updateSongPromiseEl: ApiEndpoints.PromiseEl?
-    private var getPlaylistSongsPromiseEl: ApiEndpoints.SongsPromiseEl?
+    private var updateSongPromiseEl: ApiEndpointsHelpers.PromiseEl?
+    private var getPlaylistSongsPromiseEl: ApiEndpointsHelpers.SongsPromiseEl?
     
     private lazy var coverEl = PlayerCover()
     
     private let playEl = UIButton()
-    private lazy var corePlayerEl: CorePlayer = {
-        let v = CorePlayer(onProgress: self.handleSongProgress, onSongFinished: self.handleSongFinished)
+    private lazy var corePlayerEl: PlayerCore = {
+        let v = PlayerCore(onProgress: self.handleSongProgress, onSongFinished: self.handleSongFinished)
         return v
     }()
     
@@ -135,7 +135,7 @@ class PlayerController: UIViewController {
     }
     
     private func initViews() {
-        view.addSubview(corePlayerEl.viewEl)
+        view.layer.addSublayer(AVPlayerLayer(player: corePlayerEl))
         
         let coverWidth = view.bounds.width * 0.824
         
@@ -246,7 +246,7 @@ class PlayerController: UIViewController {
     }
     
     @objc private func handlePlayBtn() {
-        if corePlayerEl.player.rate != 0 && corePlayerEl.player.error == nil {
+        if corePlayerEl.rate != 0 && corePlayerEl.error == nil {
             pauseSong()
         } else {
             playSong()
@@ -312,7 +312,7 @@ class PlayerController: UIViewController {
         updateSongPromiseEl?.canceler()
         updateSongPromiseEl = corePlayerEl.updateSong(id: song.id)
         _ = updateSongPromiseEl?.promise.then(execute: { _ -> Void in
-            let duration = CMTimeGetSeconds(self.corePlayerEl.player.currentItem!.duration)
+            let duration = CMTimeGetSeconds(self.corePlayerEl.currentItem!.duration)
             
             self.updateTimeLabels(currentTime: 0, duration: duration)
             self.updateSlider(currentTime: 0, duration: duration)
@@ -345,7 +345,7 @@ class PlayerController: UIViewController {
     private func handleItemForPlaylistSelected(playlist: MediaCell.Data) {
         getPlaylistSongsPromiseEl?.canceler()
         
-        getPlaylistSongsPromiseEl = ApiEndpoints.getPlaylistSongs(playlist.id)
+        getPlaylistSongsPromiseEl = ApiEndpointsHelpers.getPlaylistSongs(playlist.id)
         _ = getPlaylistSongsPromiseEl?.promise
         .then { songs -> Void in self.startPlaylist(songs) }
     }

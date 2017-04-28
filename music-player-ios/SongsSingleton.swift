@@ -18,14 +18,14 @@ class SongsSingleton {
     // MARK: - API Methods
 
     public func update() {
-        _ = ApiEndpoints.getSongs().promise.then(execute: { songs -> Void in
+        _ = ApiEndpointsHelpers.getSongs().promise.then(execute: { songs -> Void in
             self.items = songs
             NotificationCenter.default.post(name: .CustomSongsUpdated, object: nil)
         })
     }
     
     public func updatePlaylists() {
-        _ = ApiEndpoints.getPlaylists().promise.then(execute: { playlists -> Void in
+        _ = ApiEndpointsHelpers.getPlaylists().promise.then(execute: { playlists -> Void in
             self.playlists = playlists
             NotificationCenter.default.post(name: .CustomPlaylistsUpdated, object: nil)
         })

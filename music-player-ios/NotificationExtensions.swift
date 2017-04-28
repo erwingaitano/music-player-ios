@@ -9,6 +9,6 @@
 import UIKit
 
 extension Notification.Name {
-    static let CustomSongsUpdated = Notification.Name.init("customSongsUpdated")
-    static let CustomPlaylistsUpdated = Notification.Name.init("customPlaylistsUpdated")
+    static let CustomSongsUpdated = Notification.Name("customSongsUpdated")
+    static let CustomPlaylistsUpdated = Notification.Name("customPlaylistsUpdated")
 }
